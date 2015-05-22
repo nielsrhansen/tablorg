@@ -1,0 +1,24 @@
+Package: tablorg
+Title: Table organization of results
+Version: 0.1
+Authors@R: person("Niels Richard", "Hansen", email = "Niels.R.Hansen@math.ku.dk", role = c("aut", "cre"))
+Description: 
+  Tools for organizing results from R computations. Overview and easy access 
+  to the results are provided via an HTML table. This is a light weight alternative 
+  to an actual database. The tools are useful when running many analyses or simulations
+  with varying parameter settings. The results are organized in directories 
+  and accessed through an HTML table via a web server. This gives an R independent
+  way of monitoring computations running e.g. as an R batch script either 
+  locally or on a remote server. 
+Depends: 
+  R (>= 3.2.0)
+Imports: 
+  servr, 
+  knitr,
+  rmarkdown,
+  digest, 
+  knitrBootstrap 
+License: 
+  GPL (>= 2)
+LazyData: 
+  true

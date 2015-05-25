@@ -1,5 +1,5 @@
 Package: tablorg
-Title: Table organization of results
+Title: Table organization of computations
 Version: 0.1
 Authors@R: person("Niels Richard", "Hansen", email = "Niels.R.Hansen@math.ku.dk", role = c("aut", "cre"))
 Description: 
@@ -18,7 +18,11 @@ Imports:
   rmarkdown,
   digest, 
   knitrBootstrap 
+Suggests: 
+  knitr
+VignetteBuilder: 
+  knitr
 License: 
-  GPL (>= 2)
+  GPL-2
 LazyData: 
   true

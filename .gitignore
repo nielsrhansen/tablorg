@@ -3,3 +3,4 @@
 .RData
 .Rbuildignore
 tablorg.Rproj
+inst/doc

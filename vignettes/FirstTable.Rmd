@@ -1,0 +1,151 @@
+---
+title: "Tables of simulation results"
+author: "Niels Richard Hansen"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r init, echo=FALSE, results='hide'}
+library(ggplot2)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(tidy = FALSE, fig.align = 'center')
+```
+
+## Using tablorg to manage your simulation study
+
+Have you ever tried to keep track of a larger number of simulation studies? It 
+is easy to get lost in the results if you experiment with more than a few 
+parameter settings. The purpose of the tablorg package is to help with the 
+organization of a larger number of computations,
+where code, parameter settings and results should be kept together in an 
+accessible way. 
+
+One way to think about tablorg is as a file browser that gives you an overview 
+of simulation studies that you are currently doing or that you did in the past.
+The unique feature is that you can browse and order the studies according to 
+the parameter settings through an HTML interface.
+
+### A simple example
+
+
+### Coverage study
+
+Suppose you want to study how robust the standard 95% confidence interval 
+construction for the mean is to outliers. We do this by implementing a function 
+that computes confidence intervals for $B$ trials. The following function does 
+this based on the $t$-statistic for the normal distribution.
+
+```{r confConstr}
+## x is an n x B matrix
+confStand <- function(x) {
+  n <- nrow(x)
+  mu <- colMeans(x)
+  lim <- qt(0.975, n - 1) * apply(x, 2, sd) / sqrt(n)
+  data.frame(low = mu - lim, up = mu + lim)
+  }
+
+confRob <- function(x) {
+  n <- nrow(x)
+  mu <- apply(x, 2, median)
+  lim <- 1.96 * sqrt(pi / 2) * apply(x, 2, mad) / sqrt(n)
+  data.frame(low = mu - lim, up = mu + lim)
+  }
+```
+
+We can check that for normally distributed random variables, the confidence 
+intervals seems to have the correct coverage, that is, the coverage is the 
+intended 95%. 
+
+```{r expBase, dependson="confConstr"}
+n <- 40
+B <- 400
+x <- matrix(rnorm(n * B), n, B)
+standard <- confStand(x)
+robust <- confRob(x)
+sum(standard$low < 0 & 0 < standard$up) / B
+sum(robust$low < 0 & 0 < robust$up) / B
+```
+
+Initially we want to explore what happens if we add a single outlier. We can, 
+for instance, investigate the effect on the coverage if one observation is 
+considerably larger than the others.
+
+```{r expOut, dependson="expBase", fig.width=6}
+m <- 20
+outSd <- 1:m
+covStand <- covRob <- numeric(m)
+xBase <- x[1, ]
+for (i in 1:m) {
+  x[1, ] <- outSd[i] * xBase
+  standard <- confStand(x)
+  robust <- confRob(x)
+  covStand[i] <- sum(standard$low < 0 & 0 < standard$up) / B
+  covRob[i] <- sum(robust$low < 0 & 0 < robust$up) / B
+  }
+standSd <- sqrt(covStand * (1 - covStand) / B)
+robSd <- sqrt(covRob * (1 - covRob) / B)
+qplot(outSd, covStand, ymax = covStand + standSd, 
+      ymin = covStand - standSd, geom = "ribbon", 
+      fill = I("blue"), alpha = I(0.3)) + 
+  geom_line() + geom_point() +
+  geom_ribbon(aes(ymax = covRob + robSd, 
+      ymin = covRob - robSd), fill = "red",
+      alpha = 0.3) + 
+  geom_line(aes(y = covRob)) + 
+  geom_point(aes(y = covRob))
+```
+
+Clearly, when the standard deviation of a single observation becomes large 
+the coverage increases and approaches 100%. What happes is that the large 
+observation inflates the estimate of the (non-robust) standard error, which in 
+turn results in too wide confidence intervals and too large a coverage. The 
+robust estimators are insensitive to the outlier. Due to the asymptotic 
+theory behind the robust choice, the actual coverage is a little below 95%.
+
+We can save the resulting figure from this simulation study and be satisfied 
+with our discovery. For future references it is useful to keep track of the code 
+and the parameter settings used for the computations. Fortunately, this is easily 
+done today in R, as demonstrated by this vignette, using knitr. Simulation 
+studies do, however, proliferate because you can make a range of different 
+small tweaks and changes of parameters. The result is a collection of knitr 
+documents containing code and results for similar computations with minor 
+modifications. 
+
+In this coverage example we would like to change the type of outlier distribution 
+and the number of outliers. We would also like to change the choice of estimators
+for the mean or the standard deviation. In the ideal case we could think up a 
+neat design of the study upfront, but in reality, such studies are mostly desgined
+in an incremental way. 
+
+## Monitoring progression
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

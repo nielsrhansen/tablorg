@@ -5,7 +5,7 @@
 \title{Yet another progress bar}
 \usage{
 progressBar(N, initial = 0, char = "=", width = NA, totalBar = TRUE,
-  file = "", pid = FALSE)
+  file = "", pid = FALSE, interval = 0.1)
 }
 \arguments{
 \item{N}{a \code{numeric}. The total number of iterations.}
@@ -17,39 +17,50 @@ progressBar(N, initial = 0, char = "=", width = NA, totalBar = TRUE,
 \item{width}{a \code{numeric}. The line width used when printing the progress bar.
 If \code{NA} (the default), it is \code{getOption("width") - 10L}.}
 
-\item{totalBar}{a \code{logical}. Should the progress bar be drawn for the total progress. If \code{FALSE} only the
-percent completion is reported.}
+\item{totalBar}{a \code{logical}. Should the progress bar be drawn for the
+total progress. If \code{FALSE} only the percent completion is reported.}
 
-\item{file}{a \code{character}. The file name used for printing the progress bar. The default value, \code{""},
-means \code{\link{stdout}}.}
+\item{file}{a \code{character}. The file name used for writing the progress
+bar. The default value, \code{""}, means \code{\link{stdout}}.}
 
-\item{pid}{a \code{logical}. Should the progress for the individual processes, according to their pid,
-be reported (default value \code{FALSE}). Only considered if \code{file != ""}. In this case,
-the individual progress bars are written to \code{paste(file, "Pid", sep = "")}.}
+\item{pid}{a \code{logical}. Should the progress for the individual processes,
+according to their pid, be reported (default value \code{FALSE}).
+Only considered if \code{file != ""}. In this case, the individual
+progress bars are written to \code{paste(file, "Pid", sep = "")}.}
+
+\item{interval}{a \code{numeric}. The time in seconds between file access.
+Default value is \code{0.1}.}
 }
 \value{
-An object of class \code{progressBar} containing two functions \code{up} and \code{kill}.
-        Call \code{up()} to increment the counter and update the progress bar. Remember
-        to call \code{kill()} after the progress bar is used to clean up.
+An object of class \code{progressBar} containing two functions
+        \code{up} and \code{kill}. Call \code{up()} to increment the counter
+        and update the progress bar. Remember to call \code{kill()} after the
+        progress bar is used to clean up.
 }
 \description{
-A progress bar that uses files to store progress counters with the intention
-that it can be used together with parallel computations.
+A progress bar that uses files to store progress counters so that it can be
+used together with parallel computations and progress can be monitored
+in an R independent way.
 }
 \details{
-This progress bar is based on \code{\link{txtProgressBar}}. However, instead of using
-a local variable associated with the progress bar object to keep track of the progress, this progress
-bar uses files to store the progress. The intention is that the progress bar works
-even when computations are carried out in parallel. It works by setting the total number \code{N}
-of iterations when creating the \code{progressBar} object. In each interation a
-counter is incremented, and the progress bar is updated with the percentage of completion
-as measured by the current value of the counter relative to \code{N}.
+This progress bar is based on \code{\link{txtProgressBar}}. In addition to
+using a local variable associated with the progress bar object to keep track
+of the progress, this progress bar also uses files to store the progress.
+The intention is that the progress bar works even when computations are
+carried out in parallel. It works by setting the total number \code{N}
+of iterations when creating the \code{progressBar} object. In each
+interation a counter is incremented, and the progress bar is updated with
+the percentage of completion as measured by the current value of the counter
+relative to \code{N}.
 
-It has only been tested with \code{\link{mclapply}} from the \code{\link{parallel}} package.
-Option \code{pid = TRUE} only gives meaningful results in this case when \code{mc.preschedule = TRUE}
-for \code{mclapply} (which is the default).
+It has only been tested with \code{\link{mclapply}} from the
+\code{\link{parallel}} package. Option \code{pid = TRUE} only gives
+meaningful results in this case when \code{mc.preschedule = TRUE} for
+\code{mclapply} (which is the default).
 
-With a huge number of interations and little work in each, the file IO can produce a serious overhead.
+With a huge number of interations and little work in each, the file IO
+can produce a notable overhead. The \code{interval} argument control how
+frequently the files are accessed.
 }
 \examples{
 pb <- progressBar(100)

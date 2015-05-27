@@ -22,7 +22,7 @@ is easy to get lost in the results if you experiment with more than a few
 parameter settings. The purpose of the tablorg package is to help with the 
 organization of a larger number of computations,
 where code, parameter settings and results should be kept together in an 
-accessible way. 
+organized and accessible way. 
 
 One way to think about tablorg is as a file browser that gives you an overview 
 of simulation studies that you are currently doing or that you did in the past.
@@ -41,6 +41,8 @@ this based on the $t$-statistic for the normal distribution.
 
 ```{r confConstr}
 ## x is an n x B matrix
+## 'confStand' computes standard confidence intervals for the mean based on the 
+## non-robust t-statistic
 confStand <- function(x) {
   n <- nrow(x)
   mu <- colMeans(x)
@@ -48,6 +50,9 @@ confStand <- function(x) {
   data.frame(low = mu - lim, up = mu + lim)
   }
 
+## 'confRob' computes approximate confidence intervals for the mean based on 
+## the median and a median absolute deviation as robust estimators of the mean
+## and standard deviation, respectively. 
 confRob <- function(x) {
   n <- nrow(x)
   mu <- apply(x, 2, median)
@@ -57,46 +62,39 @@ confRob <- function(x) {
 ```
 
 We can check that for normally distributed random variables, the confidence 
-intervals seems to have the correct coverage, that is, the coverage is the 
-intended 95%. 
+intervals appear to have roughly the correct coverage, that is, the coverage is 
+the intended 95%. 
 
 ```{r expBase, dependson="confConstr"}
 n <- 40
 B <- 400
 x <- matrix(rnorm(n * B), n, B)
-standard <- confStand(x)
-robust <- confRob(x)
-sum(standard$low < 0 & 0 < standard$up) / B
-sum(robust$low < 0 & 0 < robust$up) / B
+cover <- function(x) sum(x$low < 0 & 0 < x$up) / B
+cbind(stand = cover(confStand(x)), rob = cover(confRob(x)))
 ```
 
-Initially we want to explore what happens if we add a single outlier. We can, 
+We want to explore what happens if we add outliers. We can, 
 for instance, investigate the effect on the coverage if one observation is 
-considerably larger than the others.
+considerably larger in absolute value than the others.
 
 ```{r expOut, dependson="expBase", fig.width=6}
 m <- 20
 outSd <- 1:m
-covStand <- covRob <- numeric(m)
+result <- data.frame(outSd = outSd, 
+                     method = rep(c("Standard", "Robust"), each = m),
+                     coverage = numeric(2 * m))
 xBase <- x[1, ]
 for (i in 1:m) {
   x[1, ] <- outSd[i] * xBase
-  standard <- confStand(x)
-  robust <- confRob(x)
-  covStand[i] <- sum(standard$low < 0 & 0 < standard$up) / B
-  covRob[i] <- sum(robust$low < 0 & 0 < robust$up) / B
+  result[c(i, i+m), 3] <- c(cover(confStand(x)), cover(confRob(x)))
   }
-standSd <- sqrt(covStand * (1 - covStand) / B)
-robSd <- sqrt(covRob * (1 - covRob) / B)
-qplot(outSd, covStand, ymax = covStand + standSd, 
-      ymin = covStand - standSd, geom = "ribbon", 
-      fill = I("blue"), alpha = I(0.3)) + 
-  geom_line() + geom_point() +
-  geom_ribbon(aes(ymax = covRob + robSd, 
-      ymin = covRob - robSd), fill = "red",
-      alpha = 0.3) + 
-  geom_line(aes(y = covRob)) + 
-  geom_point(aes(y = covRob))
+result <- within(result, sd <- 1.96 * sqrt(coverage * (1 - coverage) / B))
+
+ggplot(result, aes(x = outSd, y = coverage, fill = method,
+                   ymin = coverage - sd, ymax = coverage + sd)) +
+  geom_ribbon(alpha = 0.3) + 
+  geom_line() + 
+  geom_point()
 ```
 
 Clearly, when the standard deviation of a single observation becomes large 

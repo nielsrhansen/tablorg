@@ -12,14 +12,14 @@ Description:
   locally or on a remote server. 
 Depends: 
   R (>= 3.2.0)
-Imports: 
+Imports:
+  dplyr,
   servr, 
-  knitr,
+  jsonlite,
   rmarkdown,
-  digest, 
-  knitrBootstrap 
+  digest
 Suggests: 
-  knitr
+  knitrBootstrap 
 VignetteBuilder: 
   knitr
 License: 

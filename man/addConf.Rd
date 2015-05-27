@@ -10,7 +10,8 @@ addConf(conf, script = "", template = "", path = ".", run = TRUE)
 \item{conf}{a \code{list}.}
 
 \item{script}{a \code{string}. The filename including the path to the script
-that will be executed based on the configuration.}
+that will be executed based on the configuration. Default value \code{""}
+means no script.}
 
 \item{template}{a \code{string}. A HTML template for the table. Either the
 template as a text string or the path to a file containing the template.
@@ -23,7 +24,7 @@ the table will be stored.}
 \code{TRUE}.}
 }
 \value{
-an object of class 'tablorg'.
+The path to the json file containing the data for the table.
 }
 \description{
 Adds a configuration entry to the table or creates a new table with the

@@ -4,16 +4,17 @@
 \alias{runEntry}
 \title{Runs a tablorg entry script}
 \usage{
-runEntry(tabl, which, view = TRUE)
+runEntry(tabl, select, view = TRUE)
 }
 \arguments{
-\item{tabl}{a \code{tablorg} object.}
+\item{tabl}{a \code{list} or a \code{string} specifying the path to a
+json file.}
 
-\item{which}{an \code{integer}. Specifies which of the entries in the tablorg
-object that will be executed. If missing, the active entry will be
-executed.}
+\item{select}{an \code{integer} or \code{character}. Specifies for which of the
+entries in the table the correspondin script will be executed. If
+missing, the active entry will be executed.}
 
-\item{view}{a \code{logical}. Should the results be}
+\item{view}{a \code{logical}. Should the result be opened in a browser.}
 }
 \value{
 URL for the path to the resulting output file (invisibly).

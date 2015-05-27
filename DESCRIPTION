@@ -1,6 +1,6 @@
 Package: tablorg
 Title: Table organization of computations
-Version: 0.1
+Version: 0.1.0.9000
 Authors@R: person("Niels Richard", "Hansen", email = "Niels.R.Hansen@math.ku.dk", role = c("aut", "cre"))
 Description: 
   Tools for organizing results from R computations. Overview and easy access 
@@ -13,6 +13,7 @@ Description:
 Depends: 
   R (>= 3.2.0)
 Imports:
+  tools,
   dplyr,
   servr, 
   jsonlite,
